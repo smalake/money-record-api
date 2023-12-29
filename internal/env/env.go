@@ -1,7 +1,6 @@
 package env
 
 import (
-	"fmt"
 	"os"
 	"strconv"
 
@@ -20,22 +19,17 @@ type MysqlConfig struct {
 	Port     int
 }
 
-func Load() Environment {
-	var e Environment
-	e.Mysql = setMysqlConfig()
-	return e
-}
+var Mc MysqlConfig
 
-func setMysqlConfig() MysqlConfig {
+func SetMysqlConfig() error {
 	err := godotenv.Load(".env")
 	if err != nil {
-		fmt.Println(err)
+		return err
 	}
-	var mc MysqlConfig
-	mc.DBname = os.Getenv("MYSQL_NAME")
-	mc.Username = os.Getenv("MYSQL_USER")
-	mc.Password = os.Getenv("MYSQL_PASSWORD")
-	mc.Host = os.Getenv("MYSQL_HOST")
-	mc.Port, _ = strconv.Atoi(os.Getenv("MYSQL_PORT"))
-	return mc
+	Mc.DBname = os.Getenv("MYSQL_NAME")
+	Mc.Username = os.Getenv("MYSQL_USER")
+	Mc.Password = os.Getenv("MYSQL_PASSWORD")
+	Mc.Host = os.Getenv("MYSQL_HOST")
+	Mc.Port, _ = strconv.Atoi(os.Getenv("MYSQL_PORT"))
+	return nil
 }
