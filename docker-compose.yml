@@ -17,10 +17,10 @@ services:
 
   db:
     platform: linux/amd64
-    image: mysql:5.7.38
+    image: mysql:8.2
     container_name: money_record_mysql
     environment:
-      MYSQL_USER: root
+      MYSQL_USER: local_user
       MYSQL_PASSWORD: local_password
       MYSQL_ROOT_PASSWORD: local_password
       TZ: 'Asia/Tokyo'
