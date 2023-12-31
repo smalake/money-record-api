@@ -1,8 +1,6 @@
 package route
 
 import (
-	"log"
-
 	"github.com/smalake/money-record-api/internal/appmodel"
 	"github.com/smalake/money-record-api/internal/service"
 	"github.com/smalake/money-record-api/pkg/mysql"
@@ -13,15 +11,19 @@ import (
 
 func SetRoute(e *echo.Echo) {
 
+	e.Use(middleware.LoggerWithConfig(middleware.LoggerConfig{
+		Format: "[${time_rfc3339_nano}] method=${method}, uri=${uri}, status=${status}\n",
+	}))
+
 	mc, err := mysql.NewClient()
 	if err != nil {
-		log.Fatalf("[FATAL]: %+v", err)
+		e.Logger.Fatalf("[FATAL]: %+v", err)
 	}
-	defer mc.Close()
+	// defer mc.Close()
 
 	appModel := appmodel.New(mc)
 	service := service.New(appModel)
-	e.POST("/login-mail", service.LoginMail)
+	e.POST("/login-mail", service.LoginMailHandler)
 
 	api := e.Group("/api/v1")
 	api.Use(middleware.JWT([]byte("secret")))

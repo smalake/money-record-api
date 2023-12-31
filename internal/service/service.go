@@ -1,8 +1,6 @@
 package service
 
 import (
-	"net/http"
-
 	"github.com/labstack/echo/v4"
 	"github.com/smalake/money-record-api/internal/appmodel"
 	"github.com/smalake/money-record-api/internal/service/auth"
@@ -17,51 +15,52 @@ func New(am *appmodel.AppModel) *Service {
 }
 
 // Auth関連
-func (s Service) LoginGoogle(ctx echo.Context) error {
+func (s Service) LoginGoogleHandler(ctx echo.Context) error {
 	var err error
 
 	// Invoke the callback with all the unmarshalled arguments
 	return err
 }
 
-func (s Service) LoginMail(ctx echo.Context) error {
+func (s Service) LoginMailHandler(ctx echo.Context) error {
 	service := auth.New(&s.appModel)
+	res := service.LoginMail(ctx)
 
-	return ctx.JSON(http.StatusOK, service.LoginMail)
+	return ResponseHandler(ctx, res)
 }
 
-func (s Service) Logout(ctx echo.Context) error {
+func (s Service) LogoutHandler(ctx echo.Context) error {
 	var err error
 
 	// Invoke the callback with all the unmarshalled arguments
 	return err
 }
 
-func (s Service) RegisterUser(ctx echo.Context) error {
+func (s Service) RegisterUserHandler(ctx echo.Context) error {
 	var err error
 
 	// Invoke the callback with all the unmarshalled arguments
 	return err
 }
 
-func (s Service) LoginCheck(ctx echo.Context) error {
+func (s Service) LoginCheckHandler(ctx echo.Context) error {
 
 	return nil
 }
 
-func (s Service) AuthCode(ctx echo.Context) error {
+func (s Service) AuthCodeHandler(ctx echo.Context) error {
 
 	return nil
 }
 
-func (s Service) ResendCode(ctx echo.Context) error {
+func (s Service) ResendCodeHandler(ctx echo.Context) error {
 	var err error
 
 	// Invoke the callback with all the unmarshalled arguments
 	return err
 }
 
-func (s Service) SendMail(ctx echo.Context) error {
+func (s Service) SendMailHandler(ctx echo.Context) error {
 	var err error
 
 	// Invoke the callback with all the unmarshalled arguments
@@ -69,7 +68,7 @@ func (s Service) SendMail(ctx echo.Context) error {
 }
 
 // HealthCheck
-func (s Service) HealthCheck(ctx echo.Context) error {
+func (s Service) HealthCheckHandler(ctx echo.Context) error {
 	var err error
 
 	// Invoke the callback with all the unmarshalled arguments
