@@ -41,6 +41,34 @@ func (s *Service) LoginMail(ctx echo.Context) structs.HttpResponse {
 	return structs.HttpResponse{Code: 200, Data: "token"}
 }
 
+// ユーザ登録
+func (s *Service) RegisterUser(ctx echo.Context) structs.HttpResponse {
+	// POSTからユーザ情報を取得
+	u := new(user.RegisterUserRequest)
+	if err := ctx.Bind(u); err != nil {
+		return structs.HttpResponse{Code: 400, Error: err}
+	}
+
+	// パスワードをハッシュ化
+	password, err := passwordEncrypt(u.Password)
+	if err != nil {
+		return structs.HttpResponse{Code: 500, Error: err}
+	}
+
+	query := mysql.RegisterUser
+	_, err = s.appModel.MysqlCli.DB.Exec(query, u.Email, password, u.Name)
+	if err != nil {
+		return structs.HttpResponse{Code: 500, Error: err}
+	}
+	return structs.HttpResponse{Code: 200}
+}
+
+// パスワードのハッシュ化
+func passwordEncrypt(password string) (string, error) {
+	hash, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+	return string(hash), err
+}
+
 // ハッシュ化されたパスワードとの比較(returnがnilならログイン成功)
 func compareHashAndPassword(hash, password string) error {
 	return bcrypt.CompareHashAndPassword([]byte(hash), []byte(password))

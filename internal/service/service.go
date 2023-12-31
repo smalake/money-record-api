@@ -37,10 +37,10 @@ func (s Service) LogoutHandler(ctx echo.Context) error {
 }
 
 func (s Service) RegisterUserHandler(ctx echo.Context) error {
-	var err error
+	service := auth.New(&s.appModel)
+	res := service.RegisterUser(ctx)
 
-	// Invoke the callback with all the unmarshalled arguments
-	return err
+	return ResponseHandler(ctx, res)
 }
 
 func (s Service) LoginCheckHandler(ctx echo.Context) error {

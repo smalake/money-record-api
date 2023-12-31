@@ -24,6 +24,7 @@ func SetRoute(e *echo.Echo) {
 	appModel := appmodel.New(mc)
 	service := service.New(appModel)
 	e.POST("/login-mail", service.LoginMailHandler)
+	e.POST("/register", service.RegisterUserHandler)
 
 	api := e.Group("/api/v1")
 	api.Use(middleware.JWT([]byte("secret")))
