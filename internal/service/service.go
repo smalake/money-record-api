@@ -30,10 +30,10 @@ func (s Service) LoginMailHandler(ctx echo.Context) error {
 }
 
 func (s Service) LogoutHandler(ctx echo.Context) error {
-	var err error
+	service := auth.New(&s.appModel)
+	res := service.Logout(ctx)
 
-	// Invoke the callback with all the unmarshalled arguments
-	return err
+	return ResponseHandler(ctx, res)
 }
 
 func (s Service) RegisterUserHandler(ctx echo.Context) error {
