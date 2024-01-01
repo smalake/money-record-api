@@ -16,10 +16,10 @@ func New(am *appmodel.AppModel) *Service {
 
 // Auth関連
 func (s Service) LoginGoogleHandler(ctx echo.Context) error {
-	var err error
+	service := auth.New(&s.appModel)
+	res := service.LoginGoogle(ctx)
 
-	// Invoke the callback with all the unmarshalled arguments
-	return err
+	return ResponseHandler(ctx, res)
 }
 
 func (s Service) LoginMailHandler(ctx echo.Context) error {

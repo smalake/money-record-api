@@ -47,7 +47,31 @@ func (s *Service) LoginMail(ctx echo.Context) structs.HttpResponse {
 		return structs.HttpResponse{Code: 500, Error: err}
 	}
 
-	return structs.HttpResponse{Code: 200, Data: map[string]string{"token": token}}
+	return structs.HttpResponse{Code: 200, Data: map[string]string{"accessToken": token}}
+}
+
+// Googleアカウントでログイン
+func (s *Service) LoginGoogle(ctx echo.Context) structs.HttpResponse {
+	// POSTからログイン情報を取得
+	u := new(user.LoginGoogleRequest)
+	if err := ctx.Bind(u); err != nil {
+		return structs.HttpResponse{Code: 400, Error: err}
+	}
+
+	query := mysql.LoginGoogle
+	var uid user.UserID
+	err := s.appModel.MysqlCli.DB.Get(&uid, query, u.Email)
+	if err != nil {
+		return structs.HttpResponse{Code: 500, Error: err}
+	}
+
+	// トークンを発行
+	token, err := issueToken(uid.ID)
+	if err != nil {
+		return structs.HttpResponse{Code: 500, Error: err}
+	}
+
+	return structs.HttpResponse{Code: 200, Data: map[string]string{"accessToken": token}}
 }
 
 // ユーザ登録
