@@ -1,11 +1,11 @@
 package user
 
 type UserID struct {
-	ID int64 `json:"id" db:"id"`
+	ID int `json:"id" db:"id"`
 }
 
 type LoginMailInfo struct {
-	ID       int64  `json:"id" db:"id"`
+	ID       int    `json:"id" db:"id"`
 	Password string `json:"password" db:"password"`
 }
 

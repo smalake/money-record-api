@@ -1,6 +1,9 @@
 package auth
 
 import (
+	"time"
+
+	"github.com/golang-jwt/jwt"
 	"github.com/labstack/echo/v4"
 	"golang.org/x/crypto/bcrypt"
 
@@ -38,7 +41,13 @@ func (s *Service) LoginMail(ctx echo.Context) structs.HttpResponse {
 		return structs.HttpResponse{Code: 401, Error: err}
 	}
 
-	return structs.HttpResponse{Code: 200, Data: "token"}
+	// トークンを発行
+	token, err := issueToken(uid.ID)
+	if err != nil {
+		return structs.HttpResponse{Code: 500, Error: err}
+	}
+
+	return structs.HttpResponse{Code: 200, Data: map[string]string{"token": token}}
 }
 
 // ユーザ登録
@@ -61,6 +70,20 @@ func (s *Service) RegisterUser(ctx echo.Context) structs.HttpResponse {
 		return structs.HttpResponse{Code: 500, Error: err}
 	}
 	return structs.HttpResponse{Code: 200}
+}
+
+// トークン発行
+func issueToken(id int) (string, error) {
+	token := jwt.New(jwt.SigningMethodHS256)
+	claims := token.Claims.(jwt.MapClaims)
+	claims["id"] = id
+	claims["iat"] = time.Now().Unix()                     // 発行時間
+	claims["exp"] = time.Now().Add(time.Hour * 24).Unix() // 有効期限
+	t, err := token.SignedString([]byte("secret"))
+	if err != nil {
+		return "", err
+	}
+	return t, nil
 }
 
 // パスワードのハッシュ化

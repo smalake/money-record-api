@@ -2,6 +2,7 @@ package service
 
 import (
 	"github.com/labstack/echo/v4"
+
 	"github.com/smalake/money-record-api/pkg/structs"
 )
 
