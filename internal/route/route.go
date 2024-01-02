@@ -35,7 +35,6 @@ func SetRoute(e *echo.Echo) {
 	e.POST("/register", service.RegisterUserHandler)
 
 	api := e.Group("/api/v1")
-	// api.Use(echojwt.JWT([]byte("secret")))
 	api.Use(echojwt.WithConfig(echojwt.Config{
 		SigningKey: []byte("secret"),
 	}))
