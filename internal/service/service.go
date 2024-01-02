@@ -44,8 +44,10 @@ func (s Service) RegisterUserHandler(ctx echo.Context) error {
 }
 
 func (s Service) LoginCheckHandler(ctx echo.Context) error {
+	service := auth.New(&s.appModel)
+	res := service.LoginCheck(ctx)
 
-	return nil
+	return ResponseHandler(ctx, res)
 }
 
 func (s Service) AuthCodeHandler(ctx echo.Context) error {

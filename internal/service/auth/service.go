@@ -101,13 +101,32 @@ func (s *Service) Logout(ctx echo.Context) structs.HttpResponse {
 	return structs.HttpResponse{Code: 200}
 }
 
+// ログインチェック
+func (s *Service) LoginCheck(ctx echo.Context) structs.HttpResponse {
+	uid := ctx.Get("uid")
+	// ユーザIDから親か子かを判定
+	var count int
+	query := mysql.LoginCheck
+	err := s.appModel.MysqlCli.DB.Get(&count, query, uid)
+	if err != nil {
+		return structs.HttpResponse{Code: 500, Error: err}
+	}
+	if count == 0 {
+		// 子の場合
+		return structs.HttpResponse{Code: 200, Data: map[string]bool{"parent": false}}
+	} else {
+		// 親の場合
+		return structs.HttpResponse{Code: 200, Data: map[string]bool{"parent": true}}
+	}
+}
+
 // トークン発行
 func issueToken(id int) (string, error) {
 	token := jwt.New(jwt.SigningMethodHS256)
 	claims := token.Claims.(jwt.MapClaims)
 	claims["id"] = id
-	claims["iat"] = time.Now().Unix()                     // 発行時間
-	claims["exp"] = time.Now().Add(time.Hour * 24).Unix() // 有効期限
+	claims["iat"] = time.Now().Unix()                      // 発行時間
+	claims["exp"] = time.Now().Add(time.Hour * 720).Unix() // 有効期限(30日)
 	t, err := token.SignedString([]byte("secret"))
 	if err != nil {
 		return "", err
