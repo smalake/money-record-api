@@ -88,8 +88,44 @@ func (s *Service) RegisterUser(ctx echo.Context) structs.HttpResponse {
 		return structs.HttpResponse{Code: 500, Error: err}
 	}
 
-	query := mysql.RegisterUser
-	_, err = s.appModel.MysqlCli.DB.Exec(query, u.Email, password, u.Name)
+	tx, err := s.appModel.MysqlCli.DB.Beginx()
+	if err != nil {
+		return structs.HttpResponse{Code: 500, Error: err}
+	}
+	// ユーザ作成
+	query := mysql.CreateUser
+	res, err := tx.Exec(query, u.Email, password, u.Name, u.RegisterType)
+	if err != nil {
+		tx.Rollback()
+		return structs.HttpResponse{Code: 500, Error: err}
+	}
+	// ユーザIDを取得
+	uid, err := res.LastInsertId()
+	if err != nil {
+		tx.Rollback()
+		return structs.HttpResponse{Code: 500, Error: err}
+	}
+	// グループ作成
+	query = mysql.CreateGroup
+	res, err = tx.Exec(query, uid)
+	if err != nil {
+		tx.Rollback()
+		return structs.HttpResponse{Code: 500, Error: err}
+	}
+	// グループIDを取得
+	gid, err := res.LastInsertId()
+	if err != nil {
+		tx.Rollback()
+		return structs.HttpResponse{Code: 500, Error: err}
+	}
+	// グループIDをユーザに紐付ける
+	query = mysql.UpdateGroup
+	_, err = tx.Exec(query, gid, uid)
+	if err != nil {
+		tx.Rollback()
+		return structs.HttpResponse{Code: 500, Error: err}
+	}
+	err = tx.Commit()
 	if err != nil {
 		return structs.HttpResponse{Code: 500, Error: err}
 	}
@@ -101,7 +137,7 @@ func (s *Service) Logout(ctx echo.Context) structs.HttpResponse {
 	return structs.HttpResponse{Code: 200}
 }
 
-// ログインチェック
+// ログインチェック(親か子かを判定も行う)
 func (s *Service) LoginCheck(ctx echo.Context) structs.HttpResponse {
 	uid := ctx.Get("uid")
 	// ユーザIDから親か子かを判定

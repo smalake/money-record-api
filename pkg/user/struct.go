@@ -19,7 +19,8 @@ type LoginGoogleRequest struct {
 }
 
 type RegisterUserRequest struct {
-	Email    string `json:"email" db:"email"`
-	Password string `json:"password" db:"password"`
-	Name     string `json:"name" db:"name"`
+	Email        string `json:"email" db:"email"`
+	Password     string `json:"password" db:"password"`
+	Name         string `json:"name" db:"name"`
+	RegisterType int    `json:"register_type" db:"register_type"`
 }
