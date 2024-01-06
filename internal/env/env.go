@@ -7,16 +7,20 @@ import (
 	"github.com/joho/godotenv"
 )
 
-type Environment struct {
-	Mysql MysqlConfig
-}
-
 type MysqlConfig struct {
 	DBname   string
 	Username string
 	Password string
 	Host     string
 	Port     int
+}
+
+type MailConfig struct {
+	Host     string
+	Port     int
+	Username string
+	Password string
+	From     string
 }
 
 var Mc MysqlConfig
@@ -32,4 +36,19 @@ func SetMysqlConfig() error {
 	Mc.Host = os.Getenv("MYSQL_HOST")
 	Mc.Port, _ = strconv.Atoi(os.Getenv("MYSQL_PORT"))
 	return nil
+}
+
+func GetMailConfig() (*MailConfig, error) {
+	err := godotenv.Load(".env")
+	if err != nil {
+		return &MailConfig{}, err
+	}
+	port, _ := strconv.Atoi(os.Getenv("MAIL_PORT"))
+	return &MailConfig{
+		Host:     os.Getenv("MAIL_HOST"),
+		Port:     port,
+		Username: os.Getenv("MAIL_USERNAME"),
+		Password: os.Getenv("MAIL_PASSWORD"),
+		From:     os.Getenv("MAIL_FROM"),
+	}, nil
 }
