@@ -29,3 +29,6 @@ var UpdateGroup = "UPDATE users SET group_id = ?, updated_at = CURRENT_TIMESTAMP
 
 // ユーザが親か子かを判定
 var LoginCheck = "SELECT COUNT(id) FROM groups WHERE manage_user = ?"
+
+// 認証コードと更新時刻を取得
+var GetAuthCode = "SELECT auth_code, updated_at FROM users WHERE email = ?"

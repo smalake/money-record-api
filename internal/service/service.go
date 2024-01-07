@@ -51,8 +51,10 @@ func (s Service) LoginCheckHandler(ctx echo.Context) error {
 }
 
 func (s Service) AuthCodeHandler(ctx echo.Context) error {
+	service := auth.New(&s.appModel)
+	res := service.AuthCode(ctx)
 
-	return nil
+	return ResponseHandler(ctx, res)
 }
 
 func (s Service) ResendCodeHandler(ctx echo.Context) error {

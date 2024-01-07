@@ -24,3 +24,8 @@ type RegisterUserRequest struct {
 	Name         string `json:"name" db:"name"`
 	RegisterType int    `json:"register_type" db:"register_type"`
 }
+
+type AuthCodeRequest struct {
+	Email    string `json:"email" db:"email"`
+	AuthCode int    `json:"auth_code" db:"auth_code"`
+}

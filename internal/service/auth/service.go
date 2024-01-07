@@ -160,12 +160,14 @@ func (s *Service) RegisterUser(ctx echo.Context) structs.HttpResponse {
 				}
 			}
 
-			// メールアドレスによる登録でない場合は認証コードを更新
-			query = mysql.UpdateAuthCode
-			_, err = tx.Exec(query, 0, u.Email)
-			if err != nil {
-				tx.Rollback()
-				return structs.HttpResponse{Code: 500, Error: err}
+			// Googleアカウントによる登録の場合は認証コードを更新
+			if u.RegisterType == 2 {
+				query = mysql.UpdateAuthCode
+				_, err = tx.Exec(query, 0, u.Email)
+				if err != nil {
+					tx.Rollback()
+					return structs.HttpResponse{Code: 500, Error: err}
+				}
 			}
 
 			err = tx.Commit()
@@ -202,6 +204,7 @@ func (s *Service) RegisterUser(ctx echo.Context) structs.HttpResponse {
 
 // ログアウト
 func (s *Service) Logout(ctx echo.Context) structs.HttpResponse {
+
 	return structs.HttpResponse{Code: 200}
 }
 
@@ -222,6 +225,45 @@ func (s *Service) LoginCheck(ctx echo.Context) structs.HttpResponse {
 		// 親の場合
 		return structs.HttpResponse{Code: 200, Data: map[string]bool{"parent": true}}
 	}
+}
+
+// メールアドレス認証用の認証コード
+type authCodeInfo struct {
+	Code      int       `db:"auth_code"`
+	UpdatedAt time.Time `db:"updated_at"`
+}
+
+// 認証コードによるメールアドレス認証
+func (s *Service) AuthCode(ctx echo.Context) structs.HttpResponse {
+	// POSTから情報を取得
+	u := new(user.AuthCodeRequest)
+	if err := ctx.Bind(u); err != nil {
+		return structs.HttpResponse{Code: 400, Error: err}
+	}
+	query := mysql.GetAuthCode
+	var authCode authCodeInfo
+	err := s.appModel.MysqlCli.DB.Get(&authCode, query, u.Email)
+	if err != nil {
+		return structs.HttpResponse{Code: 500, Error: err}
+	}
+
+	if authCode.Code == u.AuthCode {
+		// 認証コードが一致した場合は有効期限をチェック
+		validTime := time.Since(authCode.UpdatedAt)
+		if validTime <= time.Minute*5 {
+			// 有効期限内の場合は認証OK(auth_codeを0にする)
+			query = mysql.UpdateAuthCode
+			_, err = s.appModel.MysqlCli.DB.Exec(query, 0, u.Email)
+			if err != nil {
+				return structs.HttpResponse{Code: 500, Error: err}
+			}
+			return structs.HttpResponse{Code: 200}
+		} else {
+			// 有効期限切れの場合は認証NG
+			return structs.HttpResponse{Code: 401, Error: errors.New("expired auth code")}
+		}
+	}
+	return structs.HttpResponse{Code: 401, Error: errors.New("invalid auth code")}
 }
 
 // トークン発行

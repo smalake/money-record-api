@@ -33,6 +33,7 @@ func SetRoute(e *echo.Echo) {
 	e.POST("/login-mail", service.LoginMailHandler)
 	e.POST("/login-google", service.LoginGoogleHandler)
 	e.POST("/register", service.RegisterUserHandler)
+	e.POST("/auth-code", service.AuthCodeHandler)
 
 	api := e.Group("/api/v1")
 	api.Use(echojwt.WithConfig(echojwt.Config{
