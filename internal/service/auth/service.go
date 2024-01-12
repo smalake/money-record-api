@@ -238,12 +238,14 @@ func (s *Service) AuthCode(ctx echo.Context) structs.HttpResponse {
 	// POSTから情報を取得
 	u := new(user.AuthCodeRequest)
 	if err := ctx.Bind(u); err != nil {
+		ctx.Logger().Errorf("[FATAL] %v", err)
 		return structs.HttpResponse{Code: 400, Error: err}
 	}
 	query := mysql.GetAuthCode
 	var authCode authCodeInfo
 	err := s.appModel.MysqlCli.DB.Get(&authCode, query, u.Email)
 	if err != nil {
+		ctx.Logger().Errorf("[FATAL] %v", err)
 		return structs.HttpResponse{Code: 500, Error: err}
 	}
 
@@ -255,12 +257,13 @@ func (s *Service) AuthCode(ctx echo.Context) structs.HttpResponse {
 			query = mysql.UpdateAuthCode
 			_, err = s.appModel.MysqlCli.DB.Exec(query, 0, u.Email)
 			if err != nil {
+				ctx.Logger().Errorf("[FATAL] %v", err)
 				return structs.HttpResponse{Code: 500, Error: err}
 			}
 			return structs.HttpResponse{Code: 200}
 		} else {
 			// 有効期限切れの場合は認証NG
-			return structs.HttpResponse{Code: 401, Error: errors.New("expired auth code")}
+			return structs.HttpResponse{Code: 403, Error: errors.New("expired auth code")}
 		}
 	}
 	return structs.HttpResponse{Code: 401, Error: errors.New("invalid auth code")}
