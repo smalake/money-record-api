@@ -23,8 +23,8 @@ type Service struct {
 	appModel appmodel.AppModel
 }
 
-func New(appModel *appmodel.AppModel) *Service {
-	return &Service{appModel: *appModel}
+func New(am *appmodel.AppModel) *Service {
+	return &Service{appModel: *am}
 }
 
 // メールアドレスでログイン
