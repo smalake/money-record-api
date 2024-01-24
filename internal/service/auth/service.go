@@ -32,6 +32,7 @@ func (s *Service) LoginMail(ctx echo.Context) structs.HttpResponse {
 	// POSTからログイン情報を取得
 	u := new(user.LoginMailRequest)
 	if err := ctx.Bind(u); err != nil {
+		ctx.Logger().Errorf("[FATAL] %v", err)
 		return structs.HttpResponse{Code: 400, Error: err}
 	}
 
@@ -39,17 +40,20 @@ func (s *Service) LoginMail(ctx echo.Context) structs.HttpResponse {
 	var uid user.LoginMailInfo
 	err := s.appModel.MysqlCli.DB.Get(&uid, query, u.Email)
 	if err != nil {
+		ctx.Logger().Errorf("[FATAL] %v", err)
 		return structs.HttpResponse{Code: 500, Error: err}
 	}
 
 	if err := compareHashAndPassword(uid.Password, u.Password); err != nil {
 		// 認証エラー
+		ctx.Logger().Errorf("[FATAL] %v", err)
 		return structs.HttpResponse{Code: 401, Error: err}
 	}
 
 	// トークンを発行
 	token, err := issueToken(uid.ID)
 	if err != nil {
+		ctx.Logger().Errorf("[FATAL] %v", err)
 		return structs.HttpResponse{Code: 500, Error: err}
 	}
 
@@ -61,6 +65,7 @@ func (s *Service) LoginGoogle(ctx echo.Context) structs.HttpResponse {
 	// POSTからログイン情報を取得
 	u := new(user.LoginGoogleRequest)
 	if err := ctx.Bind(u); err != nil {
+		ctx.Logger().Errorf("[FATAL] %v", err)
 		return structs.HttpResponse{Code: 400, Error: err}
 	}
 
@@ -68,12 +73,14 @@ func (s *Service) LoginGoogle(ctx echo.Context) structs.HttpResponse {
 	var uid user.UserID
 	err := s.appModel.MysqlCli.DB.Get(&uid, query, u.Email)
 	if err != nil {
+		ctx.Logger().Errorf("[FATAL] %v", err)
 		return structs.HttpResponse{Code: 500, Error: err}
 	}
 
 	// トークンを発行
 	token, err := issueToken(uid.ID)
 	if err != nil {
+		ctx.Logger().Errorf("[FATAL] %v", err)
 		return structs.HttpResponse{Code: 500, Error: err}
 	}
 
@@ -91,6 +98,7 @@ func (s *Service) RegisterUser(ctx echo.Context) structs.HttpResponse {
 	// パスワードをハッシュ化
 	password, err := passwordEncrypt(u.Password)
 	if err != nil {
+		ctx.Logger().Errorf("[FATAL] %v", err)
 		return structs.HttpResponse{Code: 500, Error: err}
 	}
 
@@ -116,6 +124,7 @@ func (s *Service) RegisterUser(ctx echo.Context) structs.HttpResponse {
 			// メールアドレスが未登録の場合は、新規登録
 			tx, err := s.appModel.MysqlCli.DB.Beginx()
 			if err != nil {
+				ctx.Logger().Errorf("[FATAL] %v", err)
 				return structs.HttpResponse{Code: 500, Error: err}
 			}
 			// ユーザ作成
@@ -123,12 +132,14 @@ func (s *Service) RegisterUser(ctx echo.Context) structs.HttpResponse {
 			res, err := tx.Exec(query, u.Email, password, u.Name, u.RegisterType, code)
 			if err != nil {
 				tx.Rollback()
+				ctx.Logger().Errorf("[FATAL] %v", err)
 				return structs.HttpResponse{Code: 500, Error: err}
 			}
 			// ユーザIDを取得
 			uid, err := res.LastInsertId()
 			if err != nil {
 				tx.Rollback()
+				ctx.Logger().Errorf("[FATAL] %v", err)
 				return structs.HttpResponse{Code: 500, Error: err}
 			}
 			// グループ作成
@@ -136,6 +147,7 @@ func (s *Service) RegisterUser(ctx echo.Context) structs.HttpResponse {
 			res, err = tx.Exec(query, uid)
 			if err != nil {
 				tx.Rollback()
+				ctx.Logger().Errorf("[FATAL] %v", err)
 				return structs.HttpResponse{Code: 500, Error: err}
 			}
 			// グループIDを取得
@@ -149,6 +161,7 @@ func (s *Service) RegisterUser(ctx echo.Context) structs.HttpResponse {
 			_, err = tx.Exec(query, gid, uid)
 			if err != nil {
 				tx.Rollback()
+				ctx.Logger().Errorf("[FATAL] %v", err)
 				return structs.HttpResponse{Code: 500, Error: err}
 			}
 			// メールアドレスによる登録の場合はメール送信
@@ -166,12 +179,14 @@ func (s *Service) RegisterUser(ctx echo.Context) structs.HttpResponse {
 				_, err = tx.Exec(query, 0, u.Email)
 				if err != nil {
 					tx.Rollback()
+					ctx.Logger().Errorf("[FATAL] %v", err)
 					return structs.HttpResponse{Code: 500, Error: err}
 				}
 			}
 
 			err = tx.Commit()
 			if err != nil {
+				ctx.Logger().Errorf("[FATAL] %v", err)
 				return structs.HttpResponse{Code: 500, Error: err}
 			}
 			return structs.HttpResponse{Code: 200}
@@ -216,6 +231,7 @@ func (s *Service) LoginCheck(ctx echo.Context) structs.HttpResponse {
 	query := mysql.LoginCheck
 	err := s.appModel.MysqlCli.DB.Get(&count, query, uid)
 	if err != nil {
+		ctx.Logger().Errorf("[FATAL] %v", err)
 		return structs.HttpResponse{Code: 500, Error: err}
 	}
 	if count == 0 {
@@ -263,9 +279,11 @@ func (s *Service) AuthCode(ctx echo.Context) structs.HttpResponse {
 			return structs.HttpResponse{Code: 200}
 		} else {
 			// 有効期限切れの場合は認証NG
+			ctx.Logger().Errorf("[FATAL] %v", err)
 			return structs.HttpResponse{Code: 403, Error: errors.New("expired auth code")}
 		}
 	}
+	ctx.Logger().Errorf("[FATAL] %v", err)
 	return structs.HttpResponse{Code: 401, Error: errors.New("invalid auth code")}
 }
 
