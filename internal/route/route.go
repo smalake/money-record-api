@@ -10,7 +10,7 @@ import (
 	"github.com/smalake/money-record-api/pkg/mysql"
 
 	"github.com/golang-jwt/jwt/v5"
-	"github.com/labstack/echo-jwt/v4"
+	echojwt "github.com/labstack/echo-jwt/v4"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 )
@@ -43,6 +43,11 @@ func SetRoute(e *echo.Echo) {
 	// JWT認証
 	api.Use(JWTMiddleware)
 	api.POST("/logout", service.LogoutHandler)
+	// メモ関連
+	api.POST("/memo", service.CreateMemoHandler)
+	api.GET("/memo", service.GetMemoAllHandler)
+	api.PUT("/memo", service.UpdateMemoHandler)
+	api.DELETE("/memo", service.DeleteMemoHandler)
 }
 
 func JWTMiddleware(next echo.HandlerFunc) echo.HandlerFunc {

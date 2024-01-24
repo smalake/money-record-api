@@ -30,4 +30,16 @@ type ServerInterface interface {
 
 	// (POST /send-mail)
 	SendMailHandler(ctx echo.Context) error
+
+	// (GET /memo)
+	GetMemoAllHandler(ctx echo.Context) error
+
+	// (POST /memo)
+	CreateMemoHandler(ctx echo.Context) error
+
+	// (PUT /memo)
+	UpdateMemoHandler(ctx echo.Context) error
+
+	// (DELETE /memo)
+	DeleteMemoHandler(ctx echo.Context) error
 }

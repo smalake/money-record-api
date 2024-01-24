@@ -4,6 +4,7 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/smalake/money-record-api/internal/appmodel"
 	"github.com/smalake/money-record-api/internal/service/auth"
+	"github.com/smalake/money-record-api/internal/service/memo"
 )
 
 type Service struct {
@@ -77,4 +78,32 @@ func (s Service) HealthCheckHandler(ctx echo.Context) error {
 
 	// Invoke the callback with all the unmarshalled arguments
 	return err
+}
+
+func (s *Service) GetMemoAllHandler(ctx echo.Context) error {
+	service := memo.New(&s.appModel)
+	res := service.GetMemoAll(ctx)
+
+	return ResponseHandler(ctx, res)
+}
+
+func (s *Service) CreateMemoHandler(ctx echo.Context) error {
+	service := memo.New(&s.appModel)
+	res := service.CreateMemo(ctx)
+
+	return ResponseHandler(ctx, res)
+}
+
+func (s *Service) UpdateMemoHandler(ctx echo.Context) error {
+	service := memo.New(&s.appModel)
+	res := service.UpdateMemo(ctx)
+
+	return ResponseHandler(ctx, res)
+}
+
+func (s *Service) DeleteMemoHandler(ctx echo.Context) error {
+	service := memo.New(&s.appModel)
+	res := service.DeleteMemo(ctx)
+
+	return ResponseHandler(ctx, res)
 }

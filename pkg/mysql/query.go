@@ -32,3 +32,18 @@ var LoginCheck = "SELECT COUNT(id) FROM groups WHERE manage_user = ?"
 
 // 認証コードと更新時刻を取得
 var GetAuthCode = "SELECT auth_code, updated_at FROM users WHERE email = ?"
+
+// ######################
+// ### memoパッケージ用 ###
+// ######################
+// メモ一覧を取得
+var GetMemoAll = "SELECT id, amount, partner, memo, date, period, type FROM memos WHERE uid = ?"
+
+// メモを登録
+var CreateMemo = "INSERT INTO memos (uid, amount, partner, memo, date, period, type, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)"
+
+// メモを更新
+var UpdateMemo = "UPDATE memos SET amount = ?, partner = ?, memo = ?, date = ?, period = ?, type = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ? AND uid = ?"
+
+// メモを削除
+var DeleteMemo = "DELETE FROM memos WHERE id = ? AND uid = ?"
