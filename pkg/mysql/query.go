@@ -39,6 +39,9 @@ var GetAuthCode = "SELECT auth_code, updated_at FROM users WHERE email = ?"
 // メモ一覧を取得
 var GetMemoAll = "SELECT id, amount, partner, memo, date, period, type FROM memos WHERE uid = ?"
 
+// メモを1件取得
+var GetMemoOne = "SELECT id, amount, partner, memo, date, period, type FROM memos WHERE id = ? AND uid = ?"
+
 // メモを登録
 var CreateMemo = "INSERT INTO memos (uid, amount, partner, memo, date, period, type, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)"
 

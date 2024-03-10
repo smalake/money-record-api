@@ -87,6 +87,13 @@ func (s *Service) GetMemoAllHandler(ctx echo.Context) error {
 	return ResponseHandler(ctx, res)
 }
 
+func (s *Service) GetMemoOneHandler(ctx echo.Context) error {
+	service := memo.New(&s.appModel)
+	res := service.GetMemoOne(ctx)
+
+	return ResponseHandler(ctx, res)
+}
+
 func (s *Service) CreateMemoHandler(ctx echo.Context) error {
 	service := memo.New(&s.appModel)
 	res := service.CreateMemo(ctx)

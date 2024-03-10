@@ -45,6 +45,7 @@ func SetRoute(e *echo.Echo) {
 	api.POST("/logout", service.LogoutHandler)
 	// メモ関連
 	api.POST("/memo", service.CreateMemoHandler)
+	api.GET("/memo/:id", service.GetMemoOneHandler)
 	api.GET("/memo", service.GetMemoAllHandler)
 	api.PUT("/memo", service.UpdateMemoHandler)
 	api.DELETE("/memo", service.DeleteMemoHandler)

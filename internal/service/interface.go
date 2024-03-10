@@ -34,6 +34,9 @@ type ServerInterface interface {
 	// (GET /memo)
 	GetMemoAllHandler(ctx echo.Context) error
 
+	// (GET /memo/:id)
+	GetMemoOneHandler(ctx echo.Context) error
+
 	// (POST /memo)
 	CreateMemoHandler(ctx echo.Context) error
 

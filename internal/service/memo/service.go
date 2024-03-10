@@ -27,6 +27,21 @@ func (s *Service) GetMemoAll(ctx echo.Context) structs.HttpResponse {
 	var memo memos.GetMemoResponse
 	err := s.appModel.MysqlCli.DB.Select(&memo, query, uid)
 	if err != nil {
+		ctx.Logger().Errorf("[FATAL] %v", err)
+		return structs.HttpResponse{Code: 500, Error: err}
+	}
+	return structs.HttpResponse{Code: 200, Data: memo}
+}
+
+func (s *Service) GetMemoOne(ctx echo.Context) structs.HttpResponse {
+	uid := ctx.Get("uid")
+	id := ctx.Param("id")
+
+	query := mysql.GetMemoOne
+	var memo memos.OneMemo
+	err := s.appModel.MysqlCli.DB.Get(&memo, query, id, uid)
+	if err != nil {
+		ctx.Logger().Errorf("[FATAL] %v", err)
 		return structs.HttpResponse{Code: 500, Error: err}
 	}
 	return structs.HttpResponse{Code: 200, Data: memo}
@@ -50,12 +65,14 @@ func (s *Service) CreateMemo(ctx echo.Context) structs.HttpResponse {
 func (s *Service) UpdateMemo(ctx echo.Context) structs.HttpResponse {
 	r := new(memos.OneMemo)
 	if err := ctx.Bind(r); err != nil {
+		ctx.Logger().Errorf("[FATAL] %v", err)
 		return structs.HttpResponse{Code: 400, Error: err}
 	}
 	uid := ctx.Get("uid")
 	query := mysql.UpdateMemo
 	_, err := s.appModel.MysqlCli.DB.Exec(query, r.Amount, r.Partner, r.Memo, r.Date, r.Period, r.Type, r.ID, uid)
 	if err != nil {
+		ctx.Logger().Errorf("[FATAL] %v", err)
 		return structs.HttpResponse{Code: 500, Error: err}
 	}
 	return structs.HttpResponse{Code: 200}
@@ -64,12 +81,14 @@ func (s *Service) UpdateMemo(ctx echo.Context) structs.HttpResponse {
 func (s *Service) DeleteMemo(ctx echo.Context) structs.HttpResponse {
 	r := new(memos.OneMemo)
 	if err := ctx.Bind(r); err != nil {
+		ctx.Logger().Errorf("[FATAL] %v", err)
 		return structs.HttpResponse{Code: 400, Error: err}
 	}
 	uid := ctx.Get("uid")
 	query := mysql.DeleteMemo
 	_, err := s.appModel.MysqlCli.DB.Exec(query, r.ID, uid)
 	if err != nil {
+		ctx.Logger().Errorf("[FATAL] %v", err)
 		return structs.HttpResponse{Code: 500, Error: err}
 	}
 	return structs.HttpResponse{Code: 200}
