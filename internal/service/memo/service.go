@@ -1,6 +1,8 @@
 package memo
 
 import (
+	"fmt"
+
 	"github.com/labstack/echo/v4"
 	"github.com/smalake/money-record-api/internal/appmodel"
 	memos "github.com/smalake/money-record-api/pkg/memo"
@@ -37,6 +39,10 @@ func (s *Service) GetMemoAll(ctx echo.Context) structs.HttpResponse {
 func (s *Service) GetMemoOne(ctx echo.Context) structs.HttpResponse {
 	uid := ctx.Get("uid")
 	id := ctx.Param("id")
+	if id == "" {
+		ctx.Logger().Errorf("[ERROR] memo id is empty")
+		return structs.HttpResponse{Code: 400, Error: fmt.Errorf("[ERROR] memo id is empty")}
+	}
 
 	query := mysql.GetMemoOne
 	var memo memos.OneMemo
