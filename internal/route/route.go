@@ -48,7 +48,7 @@ func SetRoute(e *echo.Echo) {
 	api.GET("/memo/:id", service.GetMemoOneHandler)
 	api.GET("/memo", service.GetMemoAllHandler)
 	api.PUT("/memo", service.UpdateMemoHandler)
-	api.DELETE("/memo", service.DeleteMemoHandler)
+	api.DELETE("/memo/:id", service.DeleteMemoHandler)
 }
 
 func JWTMiddleware(next echo.HandlerFunc) echo.HandlerFunc {

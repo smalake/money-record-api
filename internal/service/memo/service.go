@@ -93,8 +93,14 @@ func (s *Service) DeleteMemo(ctx echo.Context) structs.HttpResponse {
 		return structs.HttpResponse{Code: 400, Error: err}
 	}
 	uid := ctx.Get("uid")
+	id := ctx.Param("id")
+	if id == "" {
+		ctx.Logger().Errorf("[ERROR] memo id is empty")
+		return structs.HttpResponse{Code: 400, Error: fmt.Errorf("[ERROR] memo id is empty")}
+	}
+
 	query := mysql.DeleteMemo
-	_, err := s.appModel.MysqlCli.DB.Exec(query, r.ID, uid)
+	_, err := s.appModel.MysqlCli.DB.Exec(query, id, uid)
 	if err != nil {
 		ctx.Logger().Errorf("[FATAL] failed to delete memo %+v", err)
 		return structs.HttpResponse{Code: 500, Error: err}
